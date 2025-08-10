@@ -41,6 +41,7 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
             'cb'            => '<input type="checkbox" />',
             'name'          => __('Student Name', 'school-manager-lite'),
             'email'         => __('Email', 'school-manager-lite'),
+            'user_type'     => __('Student Type', 'school-manager-lite'),
             'classes'       => __('Classes', 'school-manager-lite'),
             'course_id'    => __('Course', 'school-manager-lite'),
             'teacher'       => __('Teacher', 'school-manager-lite'),
@@ -60,6 +61,7 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
         $sortable_columns = array(
             'name'       => array('display_name', false),
             'email'      => array('user_email', false),
+            'user_type'  => array('user_type', false),
             'registered' => array('user_registered', true), // true means it's already sorted
             'status'     => array('status', false),
             'course_id'  => array('course_id', false)
@@ -74,6 +76,8 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
         switch ($column_name) {
             case 'email':
                 return esc_html($item->user_email);
+            case 'user_type':
+                return $this->get_user_type_display($item->ID);
             case 'course_id':
                 // Get first class course id
                 $student_manager = School_Manager_Lite_Student_Manager::instance();
@@ -218,6 +222,68 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
             admin_url('user-edit.php?user_id=' . $item->ID),
             __('Profile', 'school-manager-lite')
         );
+    }
+
+    /**
+     * Get user type key for filtering - using WordPress native role functions
+     */
+    public function get_user_type_key($user_id) {
+        $user = get_user_by('ID', $user_id);
+        if (!$user) {
+            return 'other';
+        }
+        
+        // Use WordPress native role checking - expanded to include all potential student roles
+        $user_roles = $user->roles;
+        
+        // Check for specific student role types with granular client categorization
+        if (in_array('לקוח', $user_roles) || in_array('customer', $user_roles)) {
+            // Determine if this is an independent or traffic education client
+            if (in_array('תלמיד עצמאי', $user_roles) || in_array('student_private', $user_roles)) {
+                return 'client_independent'; // לקוח עצמאי
+            } elseif (in_array('תלמיד חינוך תעבורתי', $user_roles)) {
+                return 'client_traffic'; // לקוח תעבורתי
+            } else {
+                return 'client'; // Generic client
+            }
+        } elseif (in_array('תלמיד חינוך תעבורתי', $user_roles)) {
+            return 'traffic_education';
+        } elseif (in_array('תלמיד עצמאי', $user_roles) || in_array('student_private', $user_roles)) {
+            return 'independent';
+        } elseif (in_array('school_student', $user_roles) || in_array('student_school', $user_roles)) {
+            return 'school_student';
+        } elseif (in_array('subscriber', $user_roles)) {
+            return 'subscriber';
+        } elseif (in_array('book_holder', $user_roles)) {
+            return 'book_holder';
+        } elseif (in_array('um_custom_role_1', $user_roles)) {
+            return 'custom_student';
+        } elseif (in_array('wdm_instructor', $user_roles)) {
+            return 'instructor_student';
+        } else {
+            return 'other';
+        }
+    }
+
+    /**
+     * Get user type display name with all expanded student types
+     */
+    public function get_user_type_display($user_type) {
+        $types = array(
+            'client' => 'לקוח',
+            'client_independent' => 'לקוח עצמאי',
+            'client_traffic' => 'לקוח תעבורתי',
+            'traffic_education' => 'תלמיד חינוך תעבורתי',
+            'independent' => 'תלמיד עצמאי',
+            'school_student' => 'תלמיד בית ספר',
+            'subscriber' => 'מנוי',
+            'book_holder' => 'בעל ספר',
+            'custom_student' => 'תלמיד מותאם',
+            'instructor_student' => 'מדריך-תלמיד',
+            'other' => 'אחר'
+        );
+        
+        return isset($types[$user_type]) ? $types[$user_type] : $user_type;
     }
 
     /**
@@ -421,6 +487,9 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
         // Filter by teacher if specified
         $filter_teacher_id = isset($_REQUEST['filter_teacher_id']) ? intval($_REQUEST['filter_teacher_id']) : 0;
         
+        // Filter by user type if specified
+        $filter_user_type = isset($_REQUEST['filter_user_type']) ? sanitize_text_field($_REQUEST['filter_user_type']) : '';
+        
         // Get student users
         $student_manager = School_Manager_Lite_Student_Manager::instance();
         $student_users = $student_manager->get_student_users(array(
@@ -462,6 +531,20 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
                         $filtered_items[] = $item;
                         break;
                     }
+                }
+            }
+            
+            $items = $filtered_items;
+        }
+        
+        // Filter by user type
+        if (!empty($filter_user_type)) {
+            $filtered_items = array();
+            
+            foreach ($items as $item) {
+                $user_type = $this->get_user_type_key($item->ID);
+                if ($user_type === $filter_user_type) {
+                    $filtered_items[] = $item;
                 }
             }
             
@@ -627,6 +710,19 @@ class School_Manager_Lite_Students_List_Table extends WP_List_Table {
                     <?php endforeach; ?>
                 </select>
             <?php endif; ?>
+            
+            <!-- User Type Filter -->
+            <label class="screen-reader-text" for="filter_user_type"><?php _e('Filter by student type', 'school-manager-lite'); ?></label>
+            <select name="filter_user_type" id="filter_user_type">
+                <option value=""><?php _e('All Student Types', 'school-manager-lite'); ?></option>
+                <option value="client" <?php selected($filter_user_type, 'client'); ?>><?php _e('לקוח (Client)', 'school-manager-lite'); ?></option>
+                <option value="client_independent" <?php selected($filter_user_type, 'client_independent'); ?>><?php _e('לקוח עצמאי', 'school-manager-lite'); ?></option>
+                <option value="client_traffic" <?php selected($filter_user_type, 'client_traffic'); ?>><?php _e('לקוח תעבורתי', 'school-manager-lite'); ?></option>
+                <option value="traffic_education" <?php selected($filter_user_type, 'traffic_education'); ?>><?php _e('תלמיד חינוך תעבורתי', 'school-manager-lite'); ?></option>
+                <option value="independent" <?php selected($filter_user_type, 'independent'); ?>><?php _e('תלמיד עצמאי', 'school-manager-lite'); ?></option>
+                <option value="school_student" <?php selected($filter_user_type, 'school_student'); ?>><?php _e('School Student', 'school-manager-lite'); ?></option>
+                <option value="other" <?php selected($filter_user_type, 'other'); ?>><?php _e('Other', 'school-manager-lite'); ?></option>
+            </select>
             
             <?php submit_button(__('Filter', 'school-manager-lite'), '', 'filter_action', false); ?>
             <?php if (!empty($classes) || !empty($teachers)) : ?>

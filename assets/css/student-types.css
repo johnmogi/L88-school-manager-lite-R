@@ -1,0 +1,99 @@
+/* Student Type Styling for Enhanced Categorization */
+
+/* Student Type Badges */
+.student-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    color: white;
+    white-space: nowrap;
+}
+
+/* Client - Blue */
+.student-type-client {
+    background-color: #2271b1;
+    border: 1px solid #135e96;
+}
+
+/* Independent Client - Teal */
+.student-type-client_independent {
+    background-color: #0891b2;
+    border: 1px solid #0e7490;
+}
+
+/* Traffic Education Client - Dark Blue */
+.student-type-client_traffic {
+    background-color: #1e40af;
+    border: 1px solid #1e3a8a;
+}
+
+/* Traffic Education - Purple */
+.student-type-traffic_education {
+    background-color: #7c3aed;
+    border: 1px solid #5b21b6;
+}
+
+/* Independent Student - Green */
+.student-type-independent {
+    background-color: #059669;
+    border: 1px solid #047857;
+}
+
+/* School Student - Orange */
+.student-type-school_student {
+    background-color: #ea580c;
+    border: 1px solid #c2410c;
+}
+
+/* Other - Gray */
+.student-type-other {
+    background-color: #6b7280;
+    border: 1px solid #4b5563;
+}
+
+.user-type-other {
+    background-color: #f5f5f5;
+    color: #616161;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid #e0e0e0;
+}
+
+/* Filter styling */
+#filter_user_type {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+/* Student list table enhancements */
+.wp-list-table .column-user_type {
+    width: 150px;
+}
+
+/* Status indicators */
+.status-active {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.status-inactive {
+    color: #dc3232;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .user-type-client,
+    .user-type-traffic,
+    .user-type-independent,
+    .user-type-school,
+    .user-type-other {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+}

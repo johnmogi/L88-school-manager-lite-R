@@ -126,28 +126,26 @@ class School_Manager_Lite {
         
         // Only load other classes if database exists (to maintain dependency order)
         if (class_exists('School_Manager_Lite_Database')) {
-            // Core classes with safe includes
-            $core_files = array(
-                'includes/class-teacher-manager.php',
-                'includes/class-class-manager.php',
-                'includes/class-student-manager.php',
-                'includes/class-promo-code-manager.php',
-                'includes/class-shortcodes.php',
-                'includes/class-import-export.php',
-                'includes/class-teacher-dashboard.php',
-                'includes/class-learndash-integration.php',
-                'includes/class-simple-group-connector.php',
-                'includes/class-basic-fixes.php',
-                'includes/class-instructor-quiz-connector.php',
-                'includes/class-instructor-quiz-manager.php',
-                'includes/class-instructor-dashboard-widget.php'
-            );
-            
-            foreach ($core_files as $file) {
-                if (file_exists(SCHOOL_MANAGER_LITE_PATH . $file)) {
-                    require_once SCHOOL_MANAGER_LITE_PATH . $file;
-                }
-            }
+            // Include core classes
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-database.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-student-manager.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-class-manager.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-teacher-manager.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-promo-code-manager.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-shortcodes.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-ajax-handlers.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-import-export.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-learndash-integration.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-instructor-group-connector.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-simple-group-connector.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-instructor-quiz-connector.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-instructor-quiz-manager.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-instructor-dashboard-widget.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-teacher-dashboard.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-teacher-roles.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-basic-fixes.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-registration-fallback.php';
+            require_once SCHOOL_MANAGER_LITE_PATH . 'includes/class-admin-assets.php';
 
             // Admin
             if (is_admin()) {

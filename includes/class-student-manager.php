@@ -195,6 +195,8 @@ class School_Manager_Lite_Student_Manager {
         return $wpdb->get_results($query);
     }
     
+
+
     /**
      * Get student by ID
      */
@@ -539,14 +541,12 @@ class School_Manager_Lite_Student_Manager {
     }
 
     /**
-     * Get student users
+     * Get student users - ENHANCED to show ALL WordPress users with student-type roles
      * 
      * @param array $args Query arguments
      * @return array Array of WordPress user objects
      */
     public function get_student_users($args = array()) {
-        global $wpdb;
-
         $defaults = array(
             'search'  => '',
             'orderby' => 'display_name',
@@ -554,22 +554,25 @@ class School_Manager_Lite_Student_Manager {
         );
         $args = wp_parse_args($args, $defaults);
 
-        // First fetch the list of WP user IDs that have a matching entry in the custom students table
-        $student_table = $wpdb->prefix . 'school_students';
-        $wp_user_ids   = $wpdb->get_col("SELECT wp_user_id FROM {$student_table}");
-
-        // If there are no custom student records, bail early with empty set.
-        if (empty($wp_user_ids)) {
-            return array();
-        }
-
-        // Build WP_User_Query arguments – limit the query to only those IDs we found.
+        // Get ALL users with potential student-type roles - expanded to capture missing users
+        // Including all roles that could represent students based on database analysis
         $user_query_args = array(
-            'include'   => $wp_user_ids,
-            'orderby'   => $args['orderby'],
-            'order'     => $args['order'],
-            'role__in'  => array('student_private', 'student_school'),
-            'fields'    => 'all',
+            'role__in' => array(
+                'תלמיד חינוך תעבורתי',      // Traffic Education Student
+                'customer',                // Client/Customer (16 users)
+                'student_private',         // Private/Independent Student (15 users)
+                'subscriber',              // Subscribers (might include students)
+                'book_holder',             // Book holders (likely students)
+                'um_custom_role_1',        // Custom role (might be students)
+                'wdm_instructor',          // WDM instructors (might include student-instructors)
+                'תלמיד עצמאי',             // Independent Student (Hebrew name)
+                'לקוח',                    // Client (Hebrew name)
+                'school_student',          // School Student
+                'student_school'           // School Student (alternative)
+            ),
+            'orderby' => $args['orderby'],
+            'order' => $args['order'],
+            'fields' => 'all'
         );
 
         // Add search pattern if provided
