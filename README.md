@@ -119,4 +119,3 @@ This plugin is licensed under the GPL v2 or later.
 For support or customization requests, please contact the plugin author.
 # school-manager-lite-1
 # lilac-shool-lite-1
-# L88-school-manager-lite-R
